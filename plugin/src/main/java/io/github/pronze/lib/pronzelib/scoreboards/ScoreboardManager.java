@@ -4,6 +4,7 @@
 
 package io.github.pronze.lib.pronzelib.scoreboards;
 
+import io.github.pronze.lib.pronzelib.scoreboards.scoreboardr.board.BoardPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Optional;
@@ -99,5 +100,9 @@ public class ScoreboardManager implements Listener
         final UUID uuid = e.getPlayer().getUniqueId();
         this.fromCache(uuid).ifPresent(Scoreboard::destroy);
         this.cachedBoards.remove(uuid);
+        var bp = BoardPlayer.getBoardPlayerOrNull(e.getPlayer());
+        if (bp != null) {
+            bp.kill();
+        }
     }
 }
