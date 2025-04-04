@@ -72,6 +72,10 @@ public class BoardPlayer {
         return map.values();
     }
 
+    public static BoardPlayer getBoardPlayerOrNull(Player player) {
+        return map.get(player);
+    }
+
 
     private static HashMap<Player, BoardPlayer> map = new HashMap<>();
 
