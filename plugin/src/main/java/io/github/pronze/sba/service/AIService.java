@@ -346,7 +346,26 @@ public class AIService implements Listener {
 
         @SuppressWarnings("deprecation")
         public void die(Player entity) {
-                PlayerDeathEvent pde = new PlayerDeathEvent(entity, new ArrayList<>(), 0, "");
+                PlayerDeathEvent pde;
+                try {
+                        pde = new PlayerDeathEvent(entity, new ArrayList<>(), 0, 0, "");
+                } catch (Throwable ignored) {
+                        // Spigot 1.20.6: DamageSource is now required in constructor (we still depend on 1.16.5, so we use reflection)
+                        try {
+                                Class<?> dmgSourceClass = Class.forName("org.bukkit.damage.DamageSource");
+
+                                Class<?> dmgType = Class.forName("org.bukkit.damage.DamageType");
+                                var damageSource = Reflect.getMethod(Reflect.getMethod(dmgSourceClass, "builder", dmgType).invokeStatic(
+                                        Reflect.getField(dmgType, "GENERIC_KILL")
+                                ), "build").invoke();
+
+                                pde = PlayerDeathEvent.class
+                                        .getConstructor(Player.class, dmgSourceClass, List.class, int.class, int.class, String.class)
+                                        .newInstance(entity, damageSource, new ArrayList<>(), 0, 0, "");
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
+                                throw new RuntimeException(e);
+                        }
+                }
                 PlayerRespawnEvent pre = new PlayerRespawnEvent(entity, entity.getLocation(), false);
                 entity.setHealth(entity.getMaxHealth());
                 NPC npc = getNPC(entity);
