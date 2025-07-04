@@ -207,7 +207,7 @@ public class Message implements Cloneable {
                     .getConfigurator()
                     .getString("prefix", "[SBA]") + ": " + string;
         }
-        return toMiniMessage(string).toLegacy();
+        return string;
         // return AdventureHelper.toLegacy(MiniMessage.miniMessage().deserialize());
     }
 
