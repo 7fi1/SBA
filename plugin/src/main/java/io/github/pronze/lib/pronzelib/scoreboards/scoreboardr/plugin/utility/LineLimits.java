@@ -13,7 +13,9 @@ public class LineLimits {
             return lineLimit;
         }
 
-        if (Server.isVersion(1, 13)) {
+        if (Server.isVersion(1, 18)) {
+            lineLimit = 65535;
+        } else if (Server.isVersion(1, 13)) {
             lineLimit = 64;
         } else {
             lineLimit = 16;
