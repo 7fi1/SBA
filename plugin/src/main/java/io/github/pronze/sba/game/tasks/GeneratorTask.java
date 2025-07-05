@@ -55,7 +55,7 @@ public class GeneratorTask extends BaseGameTask {
                         // check to see if the spawners exist
                         var emptyQuery = game.getItemSpawners()
                                 .stream()
-                                .filter(itemSpawner -> itemSpawner.getItemSpawnerType().getMaterial() == upgradeType
+                                .filter(itemSpawner -> itemSpawner.getItemSpawnerType() != null && itemSpawner.getItemSpawnerType().getMaterial() == upgradeType
                                         .getMaterial())
                                 .findAny()
                                 .isEmpty();
@@ -64,7 +64,7 @@ public class GeneratorTask extends BaseGameTask {
                             type = null;
                         } else {
                             game.getItemSpawners().forEach(itemSpawner -> {
-                                if (itemSpawner.getItemSpawnerType().getMaterial() == upgradeType.getMaterial()) {
+                                if (itemSpawner.getItemSpawnerType() != null && itemSpawner.getItemSpawnerType().getMaterial() == upgradeType.getMaterial()) {
                                     itemSpawner.addToCurrentLevel(multiplier);
                                 }
                             });

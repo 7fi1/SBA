@@ -515,6 +515,10 @@ public class SBAStoreInventoryV2 extends AbstractStoreInventory {
                             List<ItemSpawner> spawnersToUpgrade = new ArrayList<>();
 
                             for (var spawner : game.getItemSpawners()) {
+                                if (spawner.getItemSpawnerType() == null) {
+                                    // Spawners with no valid type should be skipped
+                                    continue;
+                                }
                                 var material = spawner.getItemSpawnerType().getName().toLowerCase();
                                 if (types.contains(material)) {
                                     if (spawner.getTeam() != null
@@ -530,6 +534,10 @@ public class SBAStoreInventoryV2 extends AbstractStoreInventory {
                                     double closestDistance = Double.MAX_VALUE;
                                     ItemSpawner closestSpawner = null;
                                     for (var spawner : game.getItemSpawners()) {
+                                        if (spawner.getItemSpawnerType() == null) {
+                                            // Spawners with no valid type should be skipped
+                                            continue;
+                                        }
                                         if (spawner.getItemSpawnerType().getName().toLowerCase()
                                                 .equals(spawnerType)) {
                                             double distance = team.getTeamSpawn().distance(spawner.getLocation());
