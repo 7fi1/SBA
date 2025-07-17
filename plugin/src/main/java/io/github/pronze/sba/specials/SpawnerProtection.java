@@ -39,6 +39,11 @@ public class SpawnerProtection {
         else {
             double criteria = spawnerProtectionSize / 2;
             for (var spawner : g.getItemSpawners()) {
+                if (spawner.getItemSpawnerType() == null) {
+                    // Spawners with no valid type should be skipped
+                    continue;
+                }
+
                 var spawnerBlock = spawner.getLocation().getBlock().getLocation();
                 double dx = Math.abs(spawnerBlock.getX() - l.getX());
                 double dy = Math.abs(spawnerBlock.getY() - l.getY());

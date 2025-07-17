@@ -126,6 +126,10 @@ public class DynamicSpawnerLimiterService implements Listener {
 
     public void setAccordingly(Game game, boolean isUpgraded) {
         for (var spawner : game.getItemSpawners()) {
+            if (spawner.getItemSpawnerType() == null) {
+                // Spawners with no valid type should be skipped
+                continue;
+            }
             var material = spawner.getItemSpawnerType().getName().toLowerCase();
             if (limiters.containsKey(material)) {
                 var limiter = limiters.get(material);
