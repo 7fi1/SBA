@@ -175,6 +175,11 @@ public class Arena implements IArena {
         if (SBAConfig.getInstance().node("floating-generator", "enabled").getBoolean()) {
             game.getItemSpawners()
                     .forEach(itemSpawner -> {
+                        if (itemSpawner.getItemSpawnerType() == null) {
+                            // Spawners with no valid type should be skipped
+                            return;
+                        }
+
                         boolean found = false;
                         for (var entry : SBAConfig.getInstance().node("floating-generator", "mapping").childrenMap()
                                 .entrySet()) {

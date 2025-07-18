@@ -740,18 +740,6 @@ public class SBAConfig implements IConfigurator {
             node("version").set(plugin.getDescription().getVersion());
             saveConfig();
 
-            moveFileIfNeeded("shop.yml");
-            moveFileIfNeeded("upgradeShop.yml");
-
-            saveShop("shop.yml", true);
-            saveShop("upgradeShop.yml", true);
-
-            final var langFiles = langFolder.listFiles();
-            if (langFiles != null)
-                Arrays.stream(langFiles).forEach(File::delete);
-
-            saveFile("languages/language_en.yml");
-            ServiceManager.get(FirstStartConfigReplacer.class).updateBedWarsConfig();
             SBAUtil.reloadPlugin(Main.getInstance(), null);
         } catch (Exception ex) {
             ex.printStackTrace();

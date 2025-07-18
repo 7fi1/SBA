@@ -29,7 +29,7 @@ public class LanguageService implements ILanguageService {
     private static final List<String> validLocale = List.of(
             "af", "ar", "ca", "cs", "da", "de", "el", "en", "es", "fi", "fr", "he", "hu",
             "it", "ja", "ko", "nl", "no", "pl", "pt", "pt-BR", "ro", "ru", "sr", "sv", "tr",
-            "uk", "vi", "zh", "zh-CN"
+            "uk", "vi", "zh", "zh-cn"
     );
 
     public static LanguageService getInstance() {
