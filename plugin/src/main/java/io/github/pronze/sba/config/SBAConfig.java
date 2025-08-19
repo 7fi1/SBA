@@ -724,6 +724,7 @@ public class SBAConfig implements IConfigurator {
         if (!path2.toFile().exists() || force)
             try (var input = SBAConfig.class.getResourceAsStream("/shops/" + fileName)) {
                 System.out.println("Saving shop '" + fileName + "' at '" + path2 + "'");
+                path2.toFile().getParentFile().mkdirs();
                 try (var output = new FileOutputStream(path2.toFile())) {
                     if (input != null)
                         input.transferTo(output);
