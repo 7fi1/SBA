@@ -110,7 +110,14 @@ public class InvisiblePlayerImpl implements InvisiblePlayer {
         final var helmet = hiddenPlayer.getInventory().getHelmet();
         final var chestplate = hiddenPlayer.getInventory().getChestplate();
         final var leggings = hiddenPlayer.getInventory().getLeggings();
-        final var currentHand = hiddenPlayer.getInventory().getItemInMainHand();
+        ItemStack item;
+        try {
+            item = hiddenPlayer.getInventory().getItemInMainHand();
+        } catch (Throwable ignored) {
+            // 1.8.8
+            item = hiddenPlayer.getInventory().getItemInHand();
+        }
+        final var currentHand = item;
         arena.getGame()
                 .getConnectedPlayers()
                 .forEach(pl -> getEquipPacket(
@@ -132,8 +139,16 @@ public class InvisiblePlayerImpl implements InvisiblePlayer {
                 .stream()
                 .filter(pl -> !hiddenPlayerTeam.getConnectedPlayers().contains(pl))
                 .forEach(pl -> {
+                    ItemStack item;
+                    try {
+                        item = hiddenPlayer.getInventory().getItemInMainHand();
+                    } catch (Throwable ignored) {
+                        // 1.8.8
+                        item = hiddenPlayer.getInventory().getItemInHand();
+                    }
+
                     getEquipPacket(airStack, airStack, airStack, airStack,
-                            convert(hiddenPlayer.getInventory().getItemInMainHand()))
+                            convert(item))
                             .sendPacket(Players.wrapPlayer(pl));
                 });
     }
@@ -148,8 +163,16 @@ public class InvisiblePlayerImpl implements InvisiblePlayer {
                     .stream()
                     .filter(pl -> hiddenPlayerTeam == null || !hiddenPlayerTeam.getConnectedPlayers().contains(pl))
                     .forEach(pl -> {
+                        ItemStack item;
+                        try {
+                            item = hiddenPlayer.getInventory().getItemInMainHand();
+                        } catch (Throwable ignored) {
+                            // 1.8.8
+                            item = hiddenPlayer.getInventory().getItemInHand();
+                        }
+
                         getEquipPacket(airStack, airStack, airStack, airStack,
-                                convert(hiddenPlayer.getInventory().getItemInMainHand()))
+                                convert(item))
                                 .sendPacket(Players.wrapPlayer(pl));
                     });
         });
