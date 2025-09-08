@@ -286,13 +286,23 @@ public class Arena implements IArena {
                             LookClose look = npc.getOrAddTrait(net.citizensnpcs.trait.LookClose.class);
                             look.lookClose(true);
                             Gravity gravity = npc.getOrAddTrait(net.citizensnpcs.trait.Gravity.class);
-                            gravity.gravitate(true);
-                            gravity.setEnabled(true);
+                            try {
+                                // TODO: is this supposed to be enable gravity or disable gravity? because the old methods were just inverted
+                                gravity.setHasGravity(false);
+                            } catch (Throwable t) {
+                                Reflect.getMethod(gravity, "gravitate", boolean.class).invoke(true);
+                                Reflect.getMethod(gravity, "setEnabled", boolean.class).invoke(true);
+                            }
                             if (nonAPIStore.getEntityType() == EntityType.PLAYER) {
                                 SkinTrait trait = npc.getOrAddTrait(SkinTrait.class);
                                 trait.setSkinName(nonAPIStore.getSkinName());
                             }
-                            npc.data().setPersistent(net.citizensnpcs.api.npc.NPC.Metadata.SWIMMING, false);
+                            try {
+                                npc.data().setPersistent(net.citizensnpcs.api.npc.NPC.Metadata.SWIM, false);
+                            } catch (Throwable t) {
+                                // old citizens
+                                npc.data().setPersistent((net.citizensnpcs.api.npc.NPC.Metadata) Reflect.getField(net.citizensnpcs.api.npc.NPC.Metadata.class, "SWIMMING"), false);
+                            }
                             npc.spawn(nonAPIStore.getStoreLocation());
                             npc.getOrAddTrait(ReturnToStoreTrait.class);
                             LivingEntity entity = (LivingEntity) npc.getEntity();
