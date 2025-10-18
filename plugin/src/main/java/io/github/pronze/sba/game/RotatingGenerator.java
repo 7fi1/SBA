@@ -3,6 +3,7 @@ package io.github.pronze.sba.game;
 import io.github.pronze.sba.utils.ShopUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.screamingsandals.bedwars.Main;
 import org.screamingsandals.lib.item.builder.ItemStackFactory;
 import org.screamingsandals.lib.player.Players;
 import org.screamingsandals.lib.spectator.Component;
@@ -88,6 +89,8 @@ public class RotatingGenerator implements IRotatingGenerator {
         // cancel tasks if pending
         SBAUtil.cancelTask(hologramTask);
 
+        var resetFullSpawner = Main.getConfigurator().config.getBoolean("reset-full-spawner-countdown-after-picking");
+
         hologramTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -102,7 +105,7 @@ public class RotatingGenerator implements IRotatingGenerator {
                 } else {
                     full = itemSpawner.getMaxSpawnedResources() <= itemSpawner.spawnedItems.size();
                 }
-                if (!full) {
+                if (!full || !resetFullSpawner) {
                     time--;
                 }
                 final var format = !full ? LanguageService
@@ -135,7 +138,7 @@ public class RotatingGenerator implements IRotatingGenerator {
 
                 update(newLines);
 
-                if (time <= 0 || full) {
+                if (time <= 0 || (full && resetFullSpawner)) {
                     if (SBA.sbw_0_2_30) {
                         // SBW now allows to dynamically change the spawner interval during the game by changing this property,
                         // we should use it for holograms to prevent synchronization issues
