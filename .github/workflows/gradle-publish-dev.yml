@@ -57,13 +57,15 @@ jobs:
       - name: Upload artifact to Gitea release
         if: env.GITEA_ACTIONS == 'true'
         run: |
-            curl -X POST https:/gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${{ steps.read_property.outputs.value }}-dev/assets \
+            TAG="${{ steps.read_property.outputs.value }}-dev"
+            FILE="plugin/build/libs/SBA-${TAG}-all.jar"
+            RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
+            UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
+            curl --fail -X POST "$UPLOAD_URL" \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            -F name="SBA-${{ steps.read_property.outputs.value }}.jar" \
-            -F attachment=@plugin/build/libs/SBA-${{ steps.read_property.outputs.value }}-all.jar
-            -o response.json
-            -w "%{http_code}\n"
-
+            -F name="SBA-${TAG}.jar" \
+            -F attachment=@${FILE}
     
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
