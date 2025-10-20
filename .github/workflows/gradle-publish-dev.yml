@@ -64,23 +64,20 @@ jobs:
             RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
 
-            RELEASE_ID=$(echo "$RELEASE_JSON" | jq -r '.id')
             UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
 
             # Check for existing asset
-            EXISTING_ASSET_ID=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+            ASSET_EXISTS=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
 
-            if [ -n "$EXISTING_ASSET_ID" ]; then
-            echo "🧹 Deleting existing asset: $ASSET_NAME (ID: $EXISTING_ASSET_ID)"
-            curl -s -X DELETE -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-                https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/assets/${EXISTING_ASSET_ID}
-            fi
-
+            if [ -n "$ASSET_EXISTS" ]; then
+            echo "✅ Asset '$ASSET_NAME' already exists. Skipping upload."
+            else
             echo "📦 Uploading new asset: $ASSET_NAME"
             curl --fail -X POST "$UPLOAD_URL" \
-            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            -F name="$ASSET_NAME" \
-            -F attachment=@"$FILE"
+                -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+                -F name="$ASSET_NAME" \
+                -F attachment=@"$FILE"
+            fi
     
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
