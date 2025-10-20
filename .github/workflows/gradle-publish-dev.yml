@@ -44,29 +44,6 @@ jobs:
           tag: ${{ steps.read_property.outputs.value }}-dev
           allowUpdates: true
           prerelease: true
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SBA
-          path: plugin/build/libs/*.jar
-          retention-days: 1
-
-  publish-modrinth:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Downloading artifact
-        uses: actions/checkout@v5
-      - name: Read value from Properties-file
-        id: read_property
-        uses: Reedyuk/read-properties@v1.0.4
-        with:
-          path: './gradle.properties'
-          property: 'SBA_VERSION'
-      - uses: actions/download-artifact@v5.0.0
-        with:
-          name: "SBA"
-          path: "./"
-
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
