@@ -58,7 +58,7 @@ jobs:
         if: env.GITEA_ACTIONS == 'true'
         run: |
             TAG="${{ steps.read_property.outputs.value }}-dev"
-            FILE="plugin/build/libs/SBA-${TAG}-all.jar"
+            FILE=$(ls plugin/build/libs/SBA-*-all.jar | head -n 1)
             RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
             UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
