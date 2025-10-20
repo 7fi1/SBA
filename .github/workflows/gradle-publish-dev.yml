@@ -87,26 +87,4 @@ jobs:
             purpur
             spigot
           game-versions: |
-            >=1.8.8 <=1.21.10
-
-      - name: Publish to Modrinth (Beta)
-        uses: Kir-Antipov/mc-publish@v3.3
-        if: env.GITEA_ACTIONS == 'true'
-        with:
-          files: "*.jar"
-          version: ${{ steps.read_property.outputs.value}}
-          version-type: beta
-          modrinth-id: lJPKRQLl
-          modrinth-featured: false
-          modrinth-unfeature-mode: any
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          java: |
-            11
-            17
-            21
-          loaders: |
-            paper
-            purpur
-            spigot
-          game-versions: |
             >=${{steps.read_property_min_mc_version.outputs.value}} <=${{steps.read_property_max_mc_version.outputs.value}}
