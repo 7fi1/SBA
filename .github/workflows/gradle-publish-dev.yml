@@ -44,6 +44,11 @@ jobs:
           tag: ${{ steps.read_property.outputs.value }}-dev
           allowUpdates: true
           prerelease: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SBA
+          path: plugin/build/libs/*.jar
+          retention-days: 1
 
   publish-modrinth:
     needs: build
