@@ -70,7 +70,7 @@ jobs:
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          files: "SBA_dev-*.jar"
+          files: "plugin/build/libs/*.jar"
           version: ${{ steps.read_property.outputs.value}}
           version-type: beta
           modrinth-id: lJPKRQLl
