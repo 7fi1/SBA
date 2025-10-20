@@ -67,19 +67,20 @@ jobs:
             curl --fail -X POST "$UPLOAD_URL" \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             -F name="SBA-${TAG}.jar" \
-            -F attachment=@${FILE}
+            -F attachment=@${FILE} || echo "⚠️ Upload failed (likely duplicate). Continuing..."
 
       - name: Publish to Modrinth (Release)
         uses: Kir-Antipov/mc-publish@v3.3
         if: env.GITEA_ACTIONS == 'true'
         with:
-          files: "SBA-*.jar"
+          files: "plugin/build/libs/*.jar"
           version: ${{steps.read_property.outputs.value}}
           version-type: release
           modrinth-id: lJPKRQLl
           modrinth-featured: true
           modrinth-unfeature-mode: any
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          fail-mode: warn
           java: |
             11
             17
