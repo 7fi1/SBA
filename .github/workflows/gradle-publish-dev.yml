@@ -44,3 +44,35 @@ jobs:
           tag: ${{ steps.read_property.outputs.value }}-dev
           allowUpdates: true
           prerelease: true
+
+  publish-modrinth:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Downloading artifact
+        uses: actions/checkout@v5
+      - uses: thecodemonkey/action-get-gradle-version@master
+        id: version
+        with:
+          file: "build.gradle.kts"
+      - uses: actions/download-artifact@v5.0.0
+        with:
+          name: "SBA"
+          path: "./"
+
+      - if: github.event.release.prerelease == true
+        name: Publish to Modrinth (Beta)
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          files: "SBA_dev-*.jar"
+          version: ${{steps.version.outputs.version}}
+          version-type: beta
+          modrinth-id: CHANGEME
+          modrinth-featured: false
+          modrinth-unfeature-mode: any
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          loaders: |
+            paper
+            purpur
+          game-versions: |
+            >=LOWEST-VERSION <=HIGHEST-VERSION
