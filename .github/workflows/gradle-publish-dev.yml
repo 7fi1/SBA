@@ -58,13 +58,29 @@ jobs:
         run: |
             TAG="${{ steps.read_property.outputs.value }}-dev"
             FILE=$(ls plugin/build/libs/SBA-*-all.jar | head -n 1)
+            ASSET_NAME="SBA-${TAG}.jar"
+
+            # Fetch release info
             RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
+
+            RELEASE_ID=$(echo "$RELEASE_JSON" | jq -r '.id')
             UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
+
+            # Check for existing asset
+            EXISTING_ASSET_ID=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+
+            if [ -n "$EXISTING_ASSET_ID" ]; then
+            echo "🧹 Deleting existing asset: $ASSET_NAME (ID: $EXISTING_ASSET_ID)"
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+                https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/assets/${EXISTING_ASSET_ID}
+            fi
+
+            echo "📦 Uploading new asset: $ASSET_NAME"
             curl --fail -X POST "$UPLOAD_URL" \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            -F name="SBA-${TAG}.jar" \
-            -F attachment=@${FILE} || echo "⚠️ Upload failed (likely duplicate). Continuing..."
+            -F name="$ASSET_NAME" \
+            -F attachment=@"$FILE"
     
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
