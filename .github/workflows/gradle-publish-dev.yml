@@ -65,7 +65,7 @@ jobs:
             curl --fail -X POST "$UPLOAD_URL" \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             -F name="SBA-${TAG}.jar" \
-            -F attachment=${FILE}
+            -F attachment=@${FILE}
     
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
