@@ -63,28 +63,34 @@ jobs:
     steps:
       - name: Downloading artifact
         uses: actions/checkout@v5
-      - uses: thecodemonkey/action-get-gradle-version@master
-        id: version
+      - name: Read value from Properties-file
+        id: read_property
+        uses: Reedyuk/read-properties@v1.0.4
         with:
-          file: "build.gradle.kts"
+          path: './gradle.properties'
+          property: 'SBA_VERSION'
       - uses: actions/download-artifact@v5.0.0
         with:
           name: "SBA"
           path: "./"
 
-      - if: github.event.release.prerelease == false
-        name: Publish to Modrinth (Release)
+      - name: Publish to Modrinth (Release)
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           files: "SBA-*.jar"
-          version: ${{steps.version.outputs.version}}
+          version: ${{steps.read_property.outputs.value}}
           version-type: release
-          modrinth-id: CHANGEME
+          modrinth-id: lJPKRQLl
           modrinth-featured: true
           modrinth-unfeature-mode: any
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          java: |
+            11
+            17
+            21
           loaders: |
             paper
             purpur
+            spigot
           game-versions: |
-            >=LOWEST-VERSION <=HIGHEST-VERSION
+            >=1.8.8 <=1.21.10
