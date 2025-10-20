@@ -25,6 +25,18 @@ jobs:
         with:
           path: './gradle.properties'
           property: 'SBA_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_min_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MIN_MC_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_max_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MAX_MC_VERSION'
       - name: Declare some variables
         id: vars
         shell: bash
@@ -45,36 +57,9 @@ jobs:
           allowUpdates: true
           prerelease: false
 
-      # - name: Upload Release Asset
-      #   id: upload-release-asset 
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-      #     asset_path: plugin/build/libs/SBA-${{ steps.read_property.outputs.value }}-all.jar
-      #     asset_name: SBA-${{ steps.read_property.outputs.value }}-all.jar
-      #     asset_content_type: application/java-archive
-
-  publish-modrinth:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Downloading artifact
-        uses: actions/checkout@v5
-      - name: Read value from Properties-file
-        id: read_property
-        uses: Reedyuk/read-properties@v1.0.4
-        with:
-          path: './gradle.properties'
-          property: 'SBA_VERSION'
-      - uses: actions/download-artifact@v5.0.0
-        with:
-          name: "SBA"
-          path: "./"
-
       - name: Publish to Modrinth (Release)
         uses: Kir-Antipov/mc-publish@v3.3
+        if: env.GITEA_ACTIONS == 'true'
         with:
           files: "SBA-*.jar"
           version: ${{steps.read_property.outputs.value}}
@@ -92,4 +77,4 @@ jobs:
             purpur
             spigot
           game-versions: |
-            >=1.8.8 <=1.21.10
+            >=${{steps.read_property_min_mc_version.outputs.value}} <=${{steps.read_property_max_mc_version.outputs.value}}

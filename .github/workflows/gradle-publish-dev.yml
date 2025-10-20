@@ -23,6 +23,18 @@ jobs:
         with:
           path: './gradle.properties'
           property: 'SBA_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_min_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MIN_MC_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_max_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MAX_MC_VERSION'
       - name: Declare some variables
         id: vars
         shell: bash
@@ -65,39 +77,6 @@ jobs:
           game-versions: |
             >=1.8.8 <=1.21.10
 
-      - uses: actions/upload-artifact@v4
-        if: env.GITEA_ACTIONS != 'true'
-        with:
-          name: SBA
-          path: plugin/build/libs/*.jar
-          retention-days: 4
-      - uses: actions/upload-artifact@v3
-        if: env.GITEA_ACTIONS == 'true'
-        with:
-          name: SBA
-          path: plugin/build/libs/*.jar
-          retention-days: 4
-
-  publish-modrinth:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Downloading artifact
-        if: env.GITEA_ACTIONS == 'true'
-        uses: actions/checkout@v5
-      - name: Read value from Properties-file
-        if: env.GITEA_ACTIONS == 'true'
-        id: read_property
-        uses: Reedyuk/read-properties@v1.0.4
-        with:
-          path: './gradle.properties'
-          property: 'SBA_VERSION'
-      - uses: actions/download-artifact@v3
-        if: env.GITEA_ACTIONS == 'true'
-        with:
-          name: "SBA"
-          path: "./"
-
       - name: Publish to Modrinth (Beta)
         uses: Kir-Antipov/mc-publish@v3.3
         if: env.GITEA_ACTIONS == 'true'
@@ -118,4 +97,4 @@ jobs:
             purpur
             spigot
           game-versions: |
-            >=1.8.8 <=1.21.10
+            >=${{steps.read_property_min_mc_version.outputs.value}} <=${{steps.read_property_max_mc_version.outputs.value}}
