@@ -90,9 +90,9 @@ public class SBAStoreInventoryV2 extends AbstractStoreInventory {
                     } else if (castedKey.startsWith("knockback")) {
                         knockbackPrices.add(value);
                     } else {
-                        if (otherPrices.get(castedKey) == null)
-                            otherPrices.put(castedKey, new ArrayList<>());
-                        otherPrices.get(castedKey).add(value);
+                        final var otherKey = castedKey.split("-", 2)[0];
+                        otherPrices.computeIfAbsent(otherKey, k -> new ArrayList<>());
+                        otherPrices.get(otherKey).add(value);
                     }
                 });
         if (sharpnessPrices.isEmpty())
