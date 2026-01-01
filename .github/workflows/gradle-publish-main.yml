@@ -5,6 +5,7 @@ on:
     branches: [ release ]
 jobs:
   build:
+    if: contains(github.event.head_commit.message, '[push]')
     runs-on: ubuntu-latest
 
     steps:
@@ -55,51 +56,4 @@ jobs:
           tag: ${{ steps.read_property.outputs.value }}
           allowUpdates: true
           prerelease: false
-      - name: Upload artifact to Gitea release
-        if: env.GITEA_ACTIONS == 'true'
-        run: |
-            TAG="${{ steps.read_property.outputs.value }}"
-            FILE=$(ls plugin/build/libs/SBA-*-all.jar | head -n 1)
-            ASSET_NAME="SBA-${TAG}.jar"
-
-            # Fetch release info
-            RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
-
-            UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
-
-            # Check for existing asset
-            ASSET_EXISTS=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
-
-            if [ -n "$ASSET_EXISTS" ]; then
-            echo "✅ Asset '$ASSET_NAME' already exists. Skipping upload."
-            else
-            echo "📦 Uploading new asset: $ASSET_NAME"
-            curl --fail -X POST "$UPLOAD_URL" \
-                -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-                -F name="$ASSET_NAME" \
-                -F attachment=@"$FILE"
-            fi
-
-      - name: Publish to Modrinth (Release)
-        uses: Kir-Antipov/mc-publish@v3.3
-        if: env.GITEA_ACTIONS == 'true'
-        with:
-          files: "plugin/build/libs/*.jar"
-          version: ${{steps.read_property.outputs.value}}
-          version-type: release
-          modrinth-id: lJPKRQLl
-          modrinth-featured: true
-          modrinth-unfeature-mode: any
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          fail-mode: warn
-          java: |
-            11
-            17
-            21
-          loaders: |
-            paper
-            purpur
-            spigot
-          game-versions: |
-            >=${{steps.read_property_min_mc_version.outputs.value}} <=${{steps.read_property_max_mc_version.outputs.value}}
+  

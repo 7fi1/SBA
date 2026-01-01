@@ -1,0 +1,104 @@
+name: Pre-Builds dev versions
+on:
+  push:
+    branches: [ dev ]
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[fj]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Set up JDK 21 temurin
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Read value from Properties-file
+        id: read_property
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'SBA_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_min_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MIN_MC_VERSION'
+      - name: Read value from Properties-file
+        id: read_property_max_mc_version
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: './gradle.properties'
+          property: 'MAX_MC_VERSION'
+      - name: Declare some variables
+        id: vars
+        shell: bash
+        run: |
+            echo "{branch}=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_STATE
+            echo "{sha_short}=$(git rev-parse --short HEAD)" >> $GITHUB_STATE
+      - name: Build with Gradle
+        run: ./gradlew
+        env:
+          OPTIMIZE_FOR_CI_CD: "1"
+          BUILD_NUMBER: ${{ github.run_id }}
+          GITHUB_ACTIONS_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          GITHUB_COMMIT_MESSAGE: "${{ github.event.head_commit.message }}"
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "LICENSE,plugin/build/libs/*.jar"
+          tag: ${{ steps.read_property.outputs.value }}-dev
+          allowUpdates: true
+          prerelease: true
+      - name: Upload artifact to Gitea release
+        if: env.GITEA_ACTIONS == 'true'
+        run: |
+            TAG="${{ steps.read_property.outputs.value }}-dev"
+            FILE=$(ls plugin/build/libs/SBA-*-all.jar | head -n 1)
+            ASSET_NAME="SBA-${TAG}.jar"
+
+            # Fetch release info
+            RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
+
+            UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
+
+            # Check for existing asset
+            ASSET_EXISTS=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
+
+            if [ -n "$ASSET_EXISTS" ]; then
+            echo "✅ Asset '$ASSET_NAME' already exists. Skipping upload."
+            else
+            echo "📦 Uploading new asset: $ASSET_NAME"
+            curl --fail -X POST "$UPLOAD_URL" \
+                -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+                -F name="$ASSET_NAME" \
+                -F attachment=@"$FILE"
+            fi
+    
+      - name: Publish to Modrinth (Beta)
+        uses: Kir-Antipov/mc-publish@v3.3
+        if: env.GITEA_ACTIONS == 'true'
+        with:
+          files: "plugin/build/libs/*.jar"
+          version: ${{ steps.read_property.outputs.value}}
+          version-type: beta
+          modrinth-id: lJPKRQLl
+          modrinth-featured: false
+          modrinth-unfeature-mode: any
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          fail-mode: warn
+          java: |
+            11
+            17
+            21
+          loaders: |
+            paper
+            purpur
+            spigot
+          game-versions: |
+            >=${{steps.read_property_min_mc_version.outputs.value}} <=${{steps.read_property_max_mc_version.outputs.value}}
