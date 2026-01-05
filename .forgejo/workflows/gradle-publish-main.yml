@@ -21,19 +21,19 @@ jobs:
         run: chmod +x gradlew
       - name: Read value from Properties-file
         id: read_property
-        uses: Reedyuk/read-properties@v1.0.4
+        uses: https://git.moyskleytech.com/Reedyuk/read-properties@v1.0.4
         with:
           path: './gradle.properties'
           property: 'SBA_VERSION'
       - name: Read value from Properties-file
         id: read_property_min_mc_version
-        uses: Reedyuk/read-properties@v1.0.4
+        uses: https://git.moyskleytech.com/Reedyuk/read-properties@v1.0.4
         with:
           path: './gradle.properties'
           property: 'MIN_MC_VERSION'
       - name: Read value from Properties-file
         id: read_property_max_mc_version
-        uses: Reedyuk/read-properties@v1.0.4
+        uses: https://git.moyskleytech.com/Reedyuk/read-properties@v1.0.4
         with:
           path: './gradle.properties'
           property: 'MAX_MC_VERSION'
