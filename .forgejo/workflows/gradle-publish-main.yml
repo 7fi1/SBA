@@ -50,37 +50,11 @@ jobs:
           BUILD_NUMBER: ${{ github.run_id }}
           GITHUB_ACTIONS_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           GITHUB_COMMIT_MESSAGE: "${{ github.event.head_commit.message }}"
-      - uses: https://git.moyskleytech.com/ncipollo/release-action@v1
+      - name: Publish release
+        uses: https://git.moyskleytech.com/boiscljo/forgejo-release-action@main
         with:
-          artifacts: "LICENSE,plugin/build/libs/*.jar"
           tag: ${{ steps.read_property.outputs.value }}
-          allowUpdates: true
-          prerelease: false
-      - name: Upload artifact to Gitea release
-        if: env.GITEA_ACTIONS == 'true'
-        run: |
-            TAG="${{ steps.read_property.outputs.value }}"
-            FILE=$(ls plugin/build/libs/SBA-*-all.jar | head -n 1)
-            ASSET_NAME="SBA-${TAG}.jar"
-
-            # Fetch release info
-            RELEASE_JSON=$(curl -s -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            https://gitea.moyskleytech.com/api/v1/repos/boiscljo/SBA/releases/tags/${TAG})
-
-            UPLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.upload_url')
-
-            # Check for existing asset
-            ASSET_EXISTS=$(echo "$RELEASE_JSON" | jq -r --arg NAME "$ASSET_NAME" '.assets[] | select(.name == $NAME) | .id')
-
-            if [ -n "$ASSET_EXISTS" ]; then
-            echo "✅ Asset '$ASSET_NAME' already exists. Skipping upload."
-            else
-            echo "📦 Uploading new asset: $ASSET_NAME"
-            curl --fail -X POST "$UPLOAD_URL" \
-                -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-                -F name="$ASSET_NAME" \
-                -F attachment=@"$FILE"
-            fi
+          assets: LICENSE:LICENSE,plugin/build/libs/SBA-${{ steps.read_property.outputs.value }}-all.jar:SBA-${{ steps.read_property.outputs.value }}.jar
 
       - name: Publish to Modrinth (Release)
         uses: Kir-Antipov/mc-publish@v3.3
