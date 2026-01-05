@@ -57,7 +57,7 @@ jobs:
           assets: LICENSE:LICENSE,plugin/build/libs/SBA-${{ steps.read_property.outputs.value }}-all.jar:SBA-${{ steps.read_property.outputs.value }}.jar
 
       - name: Publish to Modrinth (Release)
-        uses: Kir-Antipov/mc-publish@v3.3
+        uses: https://github.com/Kira-NT/mc-publish@v3.3
         if: env.GITEA_ACTIONS == 'true'
         with:
           files: "plugin/build/libs/*.jar"
