@@ -50,7 +50,7 @@ jobs:
           BUILD_NUMBER: ${{ github.run_id }}
           GITHUB_ACTIONS_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           GITHUB_COMMIT_MESSAGE: "${{ github.event.head_commit.message }}"
-      - uses: ncipollo/release-action@v1
+      - uses: https://git.moyskleytech.com/ncipollo/release-action@v1
         with:
           artifacts: "LICENSE,plugin/build/libs/*.jar"
           tag: ${{ steps.read_property.outputs.value }}
