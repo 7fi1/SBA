@@ -115,7 +115,7 @@ public class FirstStartConfigReplacer {
     public void onPostEnable() {
         if(SBA.isBroken())return;
         enableLegacySupport();
-        if (SBAConfig.getInstance().node("first_start").getBoolean(false)) {
+        if (SBAConfig.getInstance().node("first_start").getBoolean(true)) {
             Bukkit.getLogger().info("§aDetected first start");
             updateBedWarsConfig();
             SBAConfig.getInstance().upgrade();
